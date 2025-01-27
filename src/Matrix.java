@@ -21,29 +21,12 @@ public class Matrix {
         return new Matrix(result);
     }
 
-    public String toString() {
-        String result = "";
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                result += this.matrix[i][j] + " ";
-            }
-            result += "\n";
-        }
-        return result;
+    public double get(int row, int col) {
+        return matrix[row][col];
     }
 
-    public Matrix clone() {
-        double[][] matrix = new double[this.rows][this.cols];
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                matrix[i][j] = this.matrix[i][j];
-            }
-        }
-        return new Matrix(matrix);
-    }
-
-    public double[][] getMatrix() {
-        return this.matrix;
+    public void set(int i, int j, double d) {
+        matrix[i][j] = d;
     }
 
 }

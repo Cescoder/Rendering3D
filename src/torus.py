@@ -52,6 +52,6 @@ vertices = generate_torus(major_radius, minor_radius, subdivisions_major, subdiv
 triangles = generate_torus_triangles(vertices, subdivisions_major, subdivisions_minor)
 
 # Scrivi i triangoli su un file di testo
-write_triangles_to_file(triangles, 'src/data.txt')
+write_triangles_to_file(triangles, f'torus_data_{major_radius}_{minor_radius}_{subdivisions_major}_{subdivisions_minor}.txt')
 
-print("Triangoli del toro scritti su torus_data.txt")
+print("Triangoli del toro scritti su ", f'torus_data_{major_radius}_{minor_radius}_{subdivisions_major}_{subdivisions_minor}.txt')

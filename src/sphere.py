@@ -41,13 +41,13 @@ def write_triangles_to_file(triangles, filename):
 
 # Parametri
 radius = 3.0  # raggio della sfera
-subdivisions = 15  # numero di suddivisioni
+subdivisions = 100  # numero di suddivisioni
 
 # Genera i vertici e i triangoli
 vertices = generate_sphere(radius, subdivisions)
 triangles = generate_triangles(vertices, subdivisions)
 
 # Scrivi i triangoli su un file di testo
-write_triangles_to_file(triangles, 'src\data.txt')
+write_triangles_to_file(triangles, f'sphere_data_{radius}_{subdivisions}.txt')
 
-print("Triangoli scritti su sfera_triangles.txt")
+print("Triangoli scritti su ",  f'sphere_data_{radius}_{subdivisions}.txt')
