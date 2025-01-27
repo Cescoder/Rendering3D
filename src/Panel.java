@@ -37,6 +37,7 @@ public class Panel extends JPanel {
 
             }
             // TODO: Probably an optimization can be done here
+            // creating a new Polygon object for each frame is not efficient
             drawingPolygons[i] = new Polygon(vertices);
         }
     }
