@@ -18,22 +18,12 @@ public class App {
 
     public static void main(String[] args) throws Exception {
 
-        // Carica i poligoni dal file
-        List<Polygon> polygons = loadPolygonsFromFile("src\\data.txt");
-
-        double[][] projection = {
-                { 1, 0, 0 },
-                { 0, 1, 0 }
-        };
-        Matrix projectionMatrix = new Matrix(projection);
-
-        // Combine the rotation matrices
-
-        Polygon[] projectedPolygons;
+        // Load the polygons from the file
+        Polygon[] polygons = loadPolygonsFromFile("src\\data.txt");
 
         JFrame frame = new JFrame("3D Renderer");
         Panel panel = new Panel(frame);
-        frame.setSize(800, 800);
+        frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.setVisible(true);
@@ -52,7 +42,7 @@ public class App {
             double Y_ROTATION = Y_ROTATION_S * deltaTime;
             double Z_ROTATION = Z_ROTATION_S * deltaTime;
 
-            // Matrici di rotazione e proiezione (come nel tuo codice originale)
+            // Create the rotation matrices
             double[][] y_rotation = {
                     { Math.cos(Y_ROTATION), 0, Math.sin(Y_ROTATION) },
                     { 0, 1, 0 },
@@ -83,29 +73,16 @@ public class App {
                 }
             }
 
-            // Project the polygons and scale them
-            projectedPolygons = new Polygon[polygons.size()];
-            for (int i = 0; i < polygons.size(); i++) {
-                Matrix[] vertices = new Matrix[polygons.get(i).vertices.length];
-                // TODO: probably this things should be done in the Panel class
-                for (int j = 0; j < vertices.length; j++) {
-                    vertices[j] = projectionMatrix.multiply(polygons.get(i).vertices[j]);
-                    vertices[j].set(0, 0, vertices[j].get(0, 0) * 100 + WIDTH / 2);
-                    vertices[j].set(1, 0, -vertices[j].get(1, 0) * 100 + HEIGHT / 2);
-
-                }
-                projectedPolygons[i] = new Polygon(vertices);
-            }
-
             // Set the projected polygons to the panel
-            panel.setPolygons(projectedPolygons);
+            panel.setPolygons(polygons);
+            panel.updateDrawingPolygons();
             panel.repaint();
 
         }
 
     }
 
-    private static List<Polygon> loadPolygonsFromFile(String filename) throws IOException {
+    private static Polygon[] loadPolygonsFromFile(String filename) throws IOException {
         List<Polygon> polygons = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         String line;
@@ -121,6 +98,6 @@ public class App {
             polygons.add(new Polygon(vertices));
         }
         reader.close();
-        return polygons;
+        return polygons.toArray(new Polygon[0]);
     }
 }

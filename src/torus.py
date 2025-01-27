@@ -42,8 +42,8 @@ def write_triangles_to_file(triangles, filename):
             file.write(line + '\n')
 
 # Parametri
-major_radius = 3.0  # Raggio principale del toro
-minor_radius = 2.0  # Raggio secondario del toro
+major_radius = 2.0  # Raggio principale del toro
+minor_radius = 1.0  # Raggio secondario del toro
 subdivisions_major = 30  # Suddivisioni lungo il raggio principale
 subdivisions_minor = 30  # Suddivisioni lungo il raggio secondario
 
