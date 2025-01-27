@@ -41,7 +41,7 @@ def write_triangles_to_file(triangles, filename):
 
 # Parametri
 radius = 3.0  # raggio della sfera
-subdivisions = 100  # numero di suddivisioni
+subdivisions = 30  # numero di suddivisioni
 
 # Genera i vertici e i triangoli
 vertices = generate_sphere(radius, subdivisions)

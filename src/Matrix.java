@@ -3,6 +3,12 @@ public class Matrix {
     private int rows;
     private int cols;
 
+    public Matrix(int rows, int cols) {
+        matrix = new double[rows][cols];
+        this.rows = rows;
+        this.cols = cols;
+    }
+
     public Matrix(double[][] matrix) {
         this.matrix = matrix;
         this.rows = matrix.length;
@@ -19,6 +25,14 @@ public class Matrix {
             }
         }
         return new Matrix(result);
+    }
+
+    public int getRowCount() {
+        return rows;
+    }
+
+    public int getColCount() {
+        return cols;
     }
 
     public double get(int row, int col) {
