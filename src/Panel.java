@@ -6,16 +6,27 @@ import java.awt.Graphics;
 public class Panel extends JPanel {
     private JFrame frame;
     private Polygon[] polygons;
-    private Polygon[] drawingPolygons;
-    private Matrix projectionMatrix = new Matrix(new double[][] {
-            { 1, 0, 0 },
-            { 0, 1, 0 }
-    });
+
+    private Polygon[] axis = new Polygon[] {
+            new Polygon(new Matrix[] { new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }),
+                    new Matrix(new double[][] { { 1 }, { 0 }, { 0 } }) }),
+            new Polygon(new Matrix[] { new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }),
+                    new Matrix(new double[][] { { 0 }, { 1 }, { 0 } }) }),
+            new Polygon(new Matrix[] { new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }),
+                    new Matrix(new double[][] { { 0 }, { 0 }, { 1 } }) })
+    };
+
     private Matrix normalProjectionVector = new Matrix(new double[][] {
             { 0 },
             { 0 },
             { 1 }
     });
+
+    private Matrix projectionMatrix = createProjectionMatrix(normalProjectionVector);
+
+    private Polygon[] drawingPolygons;
+
+    private Polygon[] drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
 
     public Panel(JFrame frame) {
         this.frame = frame;
@@ -30,6 +41,7 @@ public class Panel extends JPanel {
             return;
         }
 
+        // TODO: Probably an optimization can be done here
         drawingPolygons = new Polygon[polygons.length];
 
         for (int i = 0; i < polygons.length; i++) {
@@ -71,34 +83,117 @@ public class Panel extends JPanel {
             normalized.set(i, 0, normalProjectionVector.get(i, 0) / norm);
         }
 
-        // Compute the outer product of the normalized vector with itself
-        Matrix outerProduct = new Matrix(3, 3);
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                outerProduct.set(i, j, normalized.get(i, 0) * normalized.get(j, 0));
-            }
+        // Find two orthonormal basis vectors that span the plane orthogonal to the
+        // normal vector
+        Matrix basis1 = new Matrix(3, 1);
+        Matrix basis2 = new Matrix(3, 1);
+
+        // Create the first basis vector
+        if (Math.abs(normalized.get(2, 0)) < 1.0 - 1e-10) {
+            // If normal is not parallel to the Z-axis
+            basis1.set(0, 0, -normalized.get(1, 0));
+            basis1.set(1, 0, normalized.get(0, 0));
+            basis1.set(2, 0, 0);
+        } else {
+            // If normal is parallel to the Z-axis, choose a vector in the XY-plane
+            basis1.set(0, 0, 1);
+            basis1.set(1, 0, 0);
+            basis1.set(2, 0, 0);
         }
 
-        // Create the identity matrix
-        Matrix identity = new Matrix(3, 3);
+        // Normalize the first basis vector
+        norm = 0;
         for (int i = 0; i < 3; i++) {
-            identity.set(i, i, 1.0);
+            norm += basis1.get(i, 0) * basis1.get(i, 0);
+        }
+        norm = Math.sqrt(norm);
+        for (int i = 0; i < 3; i++) {
+            basis1.set(i, 0, basis1.get(i, 0) / norm);
         }
 
-        // Compute the projection matrix as I - outerProduct
-        Matrix projectionMatrix = new Matrix(3, 3);
+        // Create the second basis vector using the cross product of the normal and
+        // basis1
+        basis2.set(0, 0, normalized.get(1, 0) * basis1.get(2, 0) - normalized.get(2, 0) * basis1.get(1, 0));
+        basis2.set(1, 0, normalized.get(2, 0) * basis1.get(0, 0) - normalized.get(0, 0) * basis1.get(2, 0));
+        basis2.set(2, 0, normalized.get(0, 0) * basis1.get(1, 0) - normalized.get(1, 0) * basis1.get(0, 0));
+
+        // Normalize the second basis vector
+        norm = 0;
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                projectionMatrix.set(i, j, identity.get(i, j) - outerProduct.get(i, j));
-            }
+            norm += basis2.get(i, 0) * basis2.get(i, 0);
+        }
+        norm = Math.sqrt(norm);
+        for (int i = 0; i < 3; i++) {
+            basis2.set(i, 0, basis2.get(i, 0) / norm);
+        }
+
+        // Construct the projection matrix
+        Matrix projectionMatrix = new Matrix(2, 3);
+        for (int i = 0; i < 3; i++) {
+            projectionMatrix.set(0, i, basis1.get(i, 0));
+            projectionMatrix.set(1, i, basis2.get(i, 0));
         }
 
         return projectionMatrix;
     }
 
+    private static Polygon[] createDrawingAxis(Polygon[] axis, Matrix projectionMatrix, int width, int height) {
+        Polygon[] drawingAxis = new Polygon[axis.length];
+
+        for (int i = 0; i < axis.length; i++) {
+            Matrix[] vertices = new Matrix[axis[i].vertices.length];
+
+            for (int j = 0; j < vertices.length; j++) {
+                vertices[j] = projectionMatrix.multiply(axis[i].vertices[j]);
+                vertices[j].set(0, 0, vertices[j].get(0, 0) * 100 + width / 2);
+                vertices[j].set(1, 0, -vertices[j].get(1, 0) * 100 + height / 2);
+            }
+
+            drawingAxis[i] = new Polygon(vertices);
+        }
+
+        return drawingAxis;
+    }
+
     public void setNormalProjectionVector(Matrix normalProjectionVector) {
         this.normalProjectionVector = normalProjectionVector;
         this.projectionMatrix = createProjectionMatrix(normalProjectionVector);
+        this.drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
+        System.out.println(this.projectionMatrix);
+    }
+
+    private void drawAxis(Graphics g) {
+        if (drawingAxis == null) {
+            return;
+        }
+
+        // draw the x, y, z axes
+        g.setColor(Color.RED);
+        // draw the x-axis using the first polygon
+        for (int i = 0; i < drawingAxis[0].vertices.length; i++) {
+            Matrix vertex1 = drawingAxis[0].vertices[i];
+            Matrix vertex2 = drawingAxis[0].vertices[(i + 1) % drawingAxis[0].vertices.length];
+            g.drawLine((int) vertex1.get(0, 0), (int) vertex1.get(1, 0),
+                    (int) vertex2.get(0, 0), (int) vertex2.get(1, 0));
+        }
+
+        g.setColor(Color.GREEN);
+        // draw the y-axis using the second polygon
+        for (int i = 0; i < drawingAxis[1].vertices.length; i++) {
+            Matrix vertex1 = drawingAxis[1].vertices[i];
+            Matrix vertex2 = drawingAxis[1].vertices[(i + 1) % drawingAxis[1].vertices.length];
+            g.drawLine((int) vertex1.get(0, 0), (int) vertex1.get(1, 0),
+                    (int) vertex2.get(0, 0), (int) vertex2.get(1, 0));
+        }
+
+        g.setColor(Color.BLUE);
+        // draw the z-axis using the third polygon
+        for (int i = 0; i < drawingAxis[2].vertices.length; i++) {
+            Matrix vertex1 = drawingAxis[2].vertices[i];
+            Matrix vertex2 = drawingAxis[2].vertices[(i + 1) % drawingAxis[2].vertices.length];
+            g.drawLine((int) vertex1.get(0, 0), (int) vertex1.get(1, 0),
+                    (int) vertex2.get(0, 0), (int) vertex2.get(1, 0));
+        }
     }
 
     @Override
@@ -107,6 +202,8 @@ public class Panel extends JPanel {
 
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
+
+        drawAxis(g);
 
         if (polygons == null) {
             return;
@@ -124,4 +221,5 @@ public class Panel extends JPanel {
         }
 
     }
+
 }
