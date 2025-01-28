@@ -43,4 +43,16 @@ public class Matrix {
         matrix[i][j] = d;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                sb.append(matrix[i][j]).append(" ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
 }
