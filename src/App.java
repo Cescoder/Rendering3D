@@ -1,4 +1,7 @@
 
+import java.awt.Component;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,16 +16,48 @@ public class App {
 
     // Rotation speed
     public static final double X_ROTATION_S = 0;
-    public static final double Y_ROTATION_S = Math.PI / 2;
+    public static final double Y_ROTATION_S = 0;
     public static final double Z_ROTATION_S = 0;
 
     public static void main(String[] args) throws Exception {
 
         // Load the polygons from the file
-        Polygon[] polygons = {};
+        Polygon[] polygons = loadPolygonsFromFile("src/data.txt");
+        Polygon[] polygons2 = loadPolygonsFromFile("src/data2.txt");
 
         JFrame frame = new JFrame("3D Renderer");
-        Panel panel = new Panel(frame);
+
+        Scene scene = new Scene();
+
+        Object3D object = new Object3D(polygons);
+        Object3D object2 = new Object3D(polygons2);
+        object.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
+        object2.setCenter(new Matrix(new double[][] { { 4 }, { 0 }, { 0 } }));
+
+        double L_Y_ROTATION = Math.PI / 6;
+        // Create the rotation matrices
+        double[][] l_y_rotation = {
+                { Math.cos(L_Y_ROTATION), 0, Math.sin(
+                        L_Y_ROTATION) },
+                { 0, 1, 0 },
+                { -Math.sin(
+                        L_Y_ROTATION), 0, Math.cos(
+                                L_Y_ROTATION) }
+        };
+        Matrix l_y_rotationMatrix = new Matrix(l_y_rotation);
+
+        scene.addChild(object);
+        object.addChild(object2);
+        object.multiply(l_y_rotationMatrix);
+        Panel panel = new Panel();
+
+        panel.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent evt) {
+                Component c = (Component) evt.getSource();
+                panel.updateDrawingAxis();
+            }
+        });
+
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
@@ -38,7 +73,7 @@ public class App {
             double deltaTime = (currentTime - lastTime) / 1000.0;
             lastTime = currentTime;
 
-            System.out.println(deltaTime + " seconds \t" + 1 / deltaTime + " fps");
+            // System.out.println(deltaTime + " seconds \t" + 1 / deltaTime + " fps");
 
             double X_ROTATION = X_ROTATION_S * deltaTime;
             double Y_ROTATION = Y_ROTATION_S * deltaTime;
@@ -68,16 +103,11 @@ public class App {
 
             Matrix rotationMatrix = x_rotationMatrix.multiply(y_rotationMatrix).multiply(z_rotationMatrix);
 
-            // Rotate the polygons
-            for (Polygon polygon : polygons) {
-                for (int i = 0; i < polygon.vertices.length; i++) {
-                    polygon.vertices[i] = rotationMatrix.multiply(polygon.vertices[i]);
-                }
-            }
-
-            // Set the projected polygons to the panel
-            panel.setPolygons(polygons);
-            panel.updateDrawingPolygons();
+            // Rotate the object
+            object.multiply(rotationMatrix);
+            Polygon[] scenePoly = scene.deepGetPolygons(0).toArray(new Polygon[0]);
+            panel.updateDrawingPolygons(scenePoly);
+            panel.setDeltaTime(deltaTime);
             panel.repaint();
 
         }

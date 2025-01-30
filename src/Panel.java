@@ -1,11 +1,10 @@
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Graphics;
 
 public class Panel extends JPanel {
-    private JFrame frame;
-    private Polygon[] polygons;
+    /* private Polygon[] polygons; */
+    private double deltaTime = -1;
 
     private Polygon[] axis = new Polygon[] {
             new Polygon(new Matrix[] { new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }),
@@ -28,15 +27,9 @@ public class Panel extends JPanel {
 
     private Polygon[] drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
 
-    public Panel(JFrame frame) {
-        this.frame = frame;
-    }
-
-    public void setPolygons(Polygon[] polygons) {
-        this.polygons = polygons;
-    }
-
-    public void updateDrawingPolygons() {
+    public void updateDrawingPolygons(Polygon[] polygons) {
+        // Polygon[] polygons = scene.deepGetPolygons(0);
+        // from list to array
         if (polygons == null) {
             return;
         }
@@ -201,17 +194,20 @@ public class Panel extends JPanel {
         super.paintComponent(g);
 
         g.setColor(Color.BLACK);
-        g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
         drawAxis(g);
 
-        if (polygons == null) {
+        g.setColor(Color.WHITE);
+
+        if (drawingPolygons == null) {
             return;
         }
 
-        g.setColor(Color.WHITE);
-
         for (Polygon polygon : drawingPolygons) {
+            if (polygon == null) {
+                continue;
+            }
             for (int i = 0; i < polygon.vertices.length; i++) {
                 Matrix vertex1 = polygon.vertices[i];
                 Matrix vertex2 = polygon.vertices[(i + 1) % polygon.vertices.length];
@@ -220,6 +216,17 @@ public class Panel extends JPanel {
             }
         }
 
+        g.setColor(Color.WHITE);
+        g.drawString("FPS: " + (deltaTime == -1 ? "N/A" : String.format("%.2f", 1 / deltaTime)), 10, 20);
+
+    }
+
+    public void setDeltaTime(double deltaTime) {
+        this.deltaTime = deltaTime;
+    }
+
+    public void updateDrawingAxis() {
+        drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
     }
 
 }
