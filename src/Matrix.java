@@ -75,4 +75,12 @@ public class Matrix {
         return new Matrix(result);
     }
 
+    public Matrix deepCopy() {
+        double[][] newMatrix = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            System.arraycopy(matrix[i], 0, newMatrix[i], 0, cols);
+        }
+        return new Matrix(newMatrix);
+    }
+
 }

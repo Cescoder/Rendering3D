@@ -1,5 +1,4 @@
 
-import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.BufferedReader;
@@ -16,8 +15,12 @@ public class App {
 
     // Rotation speed
     public static final double X_ROTATION_S = 0;
-    public static final double Y_ROTATION_S = Math.PI / 2;
+    public static final double Y_ROTATION_S = 0;
     public static final double Z_ROTATION_S = 0;
+
+    public static final double X_SCALING_S = 0;
+    public static final double Y_SCALING_S = 0;
+    public static final double Z_SCALING_S = 0;
 
     public static void main(String[] args) throws Exception {
 
@@ -32,14 +35,16 @@ public class App {
 
         Object3D object = new Object3D(polygons);
         Object3D object2 = new Object3D(polygons2);
-        Object3D object3 = new Object3D(polygons3);
-        object.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
-        object2.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
-        object3.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
+        // Object3D object3 = new Object3D(polygons3);
+        object.setCenter(new Matrix(new double[][] { { -2 }, { -2 }, { 0 } }));
+        // object2.setCenter(new Matrix(new double[][] { { 1 }, { 1 }, { 1 } }));
+        // object3.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
 
         scene.addChild(object);
-        object.addChild(object2);
-        object2.addChild(object3);
+        // scene.addChild(object2);
+        // object.addChild(object2);
+        // object.addChild(object2);
+        // object2.addChild(object3);
         Panel panel = new Panel();
 
         panel.addComponentListener(new ComponentAdapter() {
@@ -93,8 +98,15 @@ public class App {
 
             Matrix rotationMatrix = x_rotationMatrix.multiply(y_rotationMatrix).multiply(z_rotationMatrix);
 
+            Matrix scalingMatrix = new Matrix(new double[][] {
+                    { 1 + X_SCALING_S * deltaTime, 0, 0 },
+                    { 0, 1 + Y_SCALING_S * deltaTime, 0 },
+                    { 0, 0, 1 + Z_SCALING_S * deltaTime }
+            });
+
             // Rotate the object
             scene.multiply(rotationMatrix);
+            scene.multiply(scalingMatrix);
             Polygon[] scenePoly = scene.deepGetPolygons(0).toArray(new Polygon[0]);
             panel.updateDrawingPolygons(scenePoly);
             panel.setDeltaTime(deltaTime);
