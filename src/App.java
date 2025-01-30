@@ -16,44 +16,38 @@ public class App {
 
     // Rotation speed
     public static final double X_ROTATION_S = 0;
-    public static final double Y_ROTATION_S = Math.PI / 2;
-    public static final double Z_ROTATION_S = 0;
+    public static final double Y_ROTATION_S = 0;
+    public static final double Z_ROTATION_S = Math.PI / 6;
 
     public static void main(String[] args) throws Exception {
 
         // Load the polygons from the file
         Polygon[] polygons = loadPolygonsFromFile("src/data.txt");
-        Polygon[] polygons2 = loadPolygonsFromFile("src/data2.txt");
-        Polygon[] polygons3 = loadPolygonsFromFile("src/data3.txt");
 
         JFrame frame = new JFrame("3D Renderer");
 
         Scene scene = new Scene();
+        scene.setCenter(new Matrix(new double[][] { { 100 }, { 200 }, { 0 } }));
 
         Object3D object = new Object3D(polygons);
-        Object3D object2 = new Object3D(polygons2);
-        Object3D object3 = new Object3D(polygons3);
-        object.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
-        object2.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
-        object3.setCenter(new Matrix(new double[][] { { 0 }, { 0 }, { 0 } }));
+        object.setCenter(new Matrix(new double[][] { { 2 }, { 0 }, { 0 } }));
 
         scene.addChild(object);
-        object.addChild(object2);
-        object2.addChild(object3);
         Panel panel = new Panel();
 
-        panel.addComponentListener(new ComponentAdapter() {
-            public void componentResized(ComponentEvent evt) {
-                panel.updateDrawingAxis();
-            }
-        });
+        panel.addComponentListener(
+                new ComponentAdapter() {
+                    public void componentResized(ComponentEvent evt) {
+                        panel.updateDrawingAxis();
+                    }
+                });
 
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.setVisible(true);
 
-        panel.setNormalProjectionVector(new Matrix(new double[][] { { 0 }, { 0 }, { 1 } }));
+        panel.setNormalProjectionVector(new Matrix(new double[][] { { 0 }, { -1 }, { 0 } }));
 
         long lastTime = System.currentTimeMillis();
 
