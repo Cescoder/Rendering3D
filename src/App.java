@@ -32,6 +32,7 @@ public class App {
         JFrame frame = new JFrame("3D Renderer");
 
         Scene scene = new Scene();
+        scene.setCenter(new Matrix(new double[][] { { 100 }, { 200 }, { 0 } }));
 
         Object3D object = new Object3D(polygons);
         Object3D object2 = new Object3D(polygons2);
@@ -47,18 +48,19 @@ public class App {
         // object2.addChild(object3);
         Panel panel = new Panel();
 
-        panel.addComponentListener(new ComponentAdapter() {
-            public void componentResized(ComponentEvent evt) {
-                panel.updateDrawingAxis();
-            }
-        });
+        panel.addComponentListener(
+                new ComponentAdapter() {
+                    public void componentResized(ComponentEvent evt) {
+                        panel.updateDrawingAxis();
+                    }
+                });
 
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.setVisible(true);
 
-        panel.setNormalProjectionVector(new Matrix(new double[][] { { 0 }, { 0 }, { 1 } }));
+        panel.setNormalProjectionVector(new Matrix(new double[][] { { 0 }, { -1 }, { 0 } }));
 
         long lastTime = System.currentTimeMillis();
 

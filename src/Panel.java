@@ -25,7 +25,10 @@ public class Panel extends JPanel {
 
     private Polygon[] drawingPolygons;
 
-    private Polygon[] drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
+    private double scaleFactor = 50;
+
+    private Polygon[] drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight(),
+            this.scaleFactor);
 
     public void updateDrawingPolygons(Polygon[] polygons) {
         // Polygon[] polygons = scene.deepGetPolygons(0);
@@ -37,19 +40,24 @@ public class Panel extends JPanel {
         // TODO: Probably an optimization can be done here
         drawingPolygons = new Polygon[polygons.length];
 
+        projectPolygons(polygons, projectionMatrix, this.getWidth(), this.getHeight(), scaleFactor,
+                drawingPolygons);
+    }
+
+    private static void projectPolygons(Polygon[] polygons, Matrix projectionMatrix, int width, int height,
+            double scaleFactor, Polygon[] projectedPolygons) {
         for (int i = 0; i < polygons.length; i++) {
             Matrix[] vertices = new Matrix[polygons[i].vertices.length];
 
             for (int j = 0; j < vertices.length; j++) {
                 vertices[j] = projectionMatrix.multiply(polygons[i].vertices[j]);
-                vertices[j].set(0, 0, vertices[j].get(0, 0) * 100 + this.getWidth() / 2);
-                vertices[j].set(1, 0, -vertices[j].get(1, 0) * 100 + this.getHeight() / 2);
-
+                vertices[j].set(0, 0, vertices[j].get(0, 0) * scaleFactor + width / 2);
+                vertices[j].set(1, 0, -vertices[j].get(1, 0) * scaleFactor + height / 2);
             }
-            // TODO: Probably an optimization can be done here
-            // creating a new Polygon object for each frame is not efficient
-            drawingPolygons[i] = new Polygon(vertices);
+
+            projectedPolygons[i] = new Polygon(vertices);
         }
+
     }
 
     private static Matrix createProjectionMatrix(Matrix normalProjectionVector) {
@@ -130,20 +138,11 @@ public class Panel extends JPanel {
         return projectionMatrix;
     }
 
-    private static Polygon[] createDrawingAxis(Polygon[] axis, Matrix projectionMatrix, int width, int height) {
+    private static Polygon[] createDrawingAxis(Polygon[] axis, Matrix projectionMatrix, int width, int height,
+            double scaleFactor) {
         Polygon[] drawingAxis = new Polygon[axis.length];
 
-        for (int i = 0; i < axis.length; i++) {
-            Matrix[] vertices = new Matrix[axis[i].vertices.length];
-
-            for (int j = 0; j < vertices.length; j++) {
-                vertices[j] = projectionMatrix.multiply(axis[i].vertices[j]);
-                vertices[j].set(0, 0, vertices[j].get(0, 0) * 100 + width / 2);
-                vertices[j].set(1, 0, -vertices[j].get(1, 0) * 100 + height / 2);
-            }
-
-            drawingAxis[i] = new Polygon(vertices);
-        }
+        projectPolygons(axis, projectionMatrix, width, height, scaleFactor, drawingAxis);
 
         return drawingAxis;
     }
@@ -151,7 +150,8 @@ public class Panel extends JPanel {
     public void setNormalProjectionVector(Matrix normalProjectionVector) {
         this.normalProjectionVector = normalProjectionVector;
         this.projectionMatrix = createProjectionMatrix(normalProjectionVector);
-        this.drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
+        this.drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight(),
+                this.scaleFactor);
         System.out.println(this.projectionMatrix);
     }
 
@@ -226,7 +226,7 @@ public class Panel extends JPanel {
     }
 
     public void updateDrawingAxis() {
-        drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight());
+        drawingAxis = createDrawingAxis(axis, projectionMatrix, this.getWidth(), this.getHeight(), this.scaleFactor);
     }
 
 }
