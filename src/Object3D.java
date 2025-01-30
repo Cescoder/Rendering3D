@@ -101,6 +101,11 @@ public class Object3D {
                     polygon.vertices[i] = matrix.multiply(polygon.vertices[i]);
                 }
             }
+
+            for (Object3D child : children) {
+                child.multiply(matrix, deepness + 1);
+            }
+            return;
         }
 
         for (Object3D child : children) {
@@ -118,7 +123,8 @@ public class Object3D {
         // rotate the r polygons
         for (int i = 0; i < r.length; i++) {
             for (int j = 0; j < r[i].vertices.length; j++) {
-                r[i].vertices[j] = matrix.multiply(r[i].vertices[j]).subtract(sum);
+                r[i].vertices[j] = matrix.multiply(r[i].vertices[j]);
+                r[i].vertices[j] = r[i].vertices[j].subtract(sum);
                 // set the new vertices
                 polygons[i].vertices[j] = r[i].vertices[j];
             }
