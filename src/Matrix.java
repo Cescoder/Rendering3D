@@ -55,4 +55,24 @@ public class Matrix {
         return sb.toString();
     }
 
+    public Matrix add(Matrix m2) {
+        double[][] result = new double[this.rows][this.cols];
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                result[i][j] = this.matrix[i][j] + m2.matrix[i][j];
+            }
+        }
+        return new Matrix(result);
+    }
+
+    public Matrix subtract(Matrix m2) {
+        double[][] result = new double[this.rows][this.cols];
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                result[i][j] = this.matrix[i][j] - m2.matrix[i][j];
+            }
+        }
+        return new Matrix(result);
+    }
+
 }
