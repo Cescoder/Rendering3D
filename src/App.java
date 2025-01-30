@@ -94,7 +94,7 @@ public class App {
             Matrix rotationMatrix = x_rotationMatrix.multiply(y_rotationMatrix).multiply(z_rotationMatrix);
 
             // Rotate the object
-            object.multiply(rotationMatrix);
+            scene.multiply(rotationMatrix);
             Polygon[] scenePoly = scene.deepGetPolygons(0).toArray(new Polygon[0]);
             panel.updateDrawingPolygons(scenePoly);
             panel.setDeltaTime(deltaTime);

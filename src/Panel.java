@@ -196,8 +196,6 @@ public class Panel extends JPanel {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
-        drawAxis(g);
-
         g.setColor(Color.WHITE);
 
         if (drawingPolygons == null) {
@@ -215,6 +213,8 @@ public class Panel extends JPanel {
                         (int) vertex2.get(0, 0), (int) vertex2.get(1, 0));
             }
         }
+
+        drawAxis(g);
 
         g.setColor(Color.WHITE);
         g.drawString("FPS: " + (deltaTime == -1 ? "N/A" : String.format("%.2f", 1 / deltaTime)), 10, 20);
