@@ -40,7 +40,7 @@ def write_triangles_to_file(triangles, filename):
             file.write(line + '\n')
 
 # Parametri
-radius = 2.0  # raggio della sfera
+radius = 4  # raggio della sfera
 subdivisions = 10  # numero di suddivisioni
 
 # Genera i vertici e i triangoli
