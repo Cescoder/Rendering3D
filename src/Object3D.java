@@ -15,7 +15,10 @@ public class Object3D {
     }
 
     public Object3D(Polygon[] polygons) {
-        this.polygons = polygons;
+        this.polygons = new Polygon[polygons.length];
+        for (int i = 0; i < polygons.length; i++) {
+            this.polygons[i] = polygons[i].deepCopy();
+        }
     }
 
     public void setParent(Object3D parent) {
@@ -95,13 +98,17 @@ public class Object3D {
     }
 
     public void multiply(Matrix matrix, int deepness) {
+        // if the deepness is 0, then we are at the root of the object
         if (deepness == 0) {
+            // apply the matrix to the polygons
             for (Polygon polygon : polygons) {
                 for (int i = 0; i < polygon.vertices.length; i++) {
                     polygon.vertices[i] = matrix.multiply(polygon.vertices[i]);
                 }
             }
 
+            // apply the matrix to the children objects relative to a deepness + 1 (this
+            // will fix the center to the parent)
             for (Object3D child : children) {
                 child.multiply(matrix, deepness + 1);
             }

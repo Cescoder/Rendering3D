@@ -50,4 +50,4 @@ triangles = generate_triangles(vertices, subdivisions)
 # Scrivi i triangoli su un file di testo
 write_triangles_to_file(triangles, f'sphere_data_{radius}_{subdivisions}.txt')
 
-print("Triangoli scritti su ",  f'sphere_data_{radius}_{subdivisions}.txt')
+print("Triangles written on ",  f'sphere_data_{radius}_{subdivisions}.txt')
